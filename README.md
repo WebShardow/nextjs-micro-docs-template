@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📚 Next.js Docs Starter (The Modern MkDocs Alternative)
 
-## Getting Started
+![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=for-the-badge&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue?style=for-the-badge&logo=typescript)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-3.0+-38bdf8?style=for-the-badge&logo=tailwindcss)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ed?style=for-the-badge&logo=docker)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-First, run the development server:
+> **"เพราะ Documentation ที่ดี คือจุดเริ่มต้นของ Software ที่ยั่งยืน"**
+
+## 🌟 แรงบันดาลใจ (Inspiration)
+
+ในโลกของ Developer เราคุ้นเคยกับ **MkDocs** ในความง่ายดายของมัน แต่เมื่อโปรเจกต์เติบโตขึ้น เราต้องการความยืดหยุ่นที่มากกว่า เราต้องการฝัง React Component ลงในเอกสาร, เราต้องการ Design System ที่ควบคุมได้ดั่งใจด้วย Tailwind CSS, และเราต้องการประสิทธิภาพระดับสูงของ Next.js
+
+โปรเจกต์นี้จึงเกิดขึ้นมาเพื่อเป็น **"สะพาน"** ระหว่างความง่ายในการเขียน Markdown กับความทรงพลังของ Modern Web Framework
+
+## 🎯 เป้าหมายของโครงการ (Project Goals)
+
+1.  **เพื่อการศึกษา (Education):** เป็น Sandbox สำหรับเรียนรู้การจัดการ Content (MDX) บนโครงสร้าง **Next.js App Router**
+2.  **แม่แบบมาตรฐาน (Template):** เป็น Boilerplate ให้กับนักพัฒนาที่ต้องการสร้างเว็บ Document ของตัวเองโดยไม่ต้องเริ่มจากศูนย์
+3.  **ความยืดหยุ่น (Extensibility):** รองรับการปรับแต่ง Theme, Layout และการเพิ่ม Interactive Components ได้อย่างไร้ขีดจำกัด
+4.  **Open Source:** ส่งเสริมการแบ่งปันและพัฒนาต่อยอดร่วมกัน
+
+## 🛠 Tech Stack
+
+เราเลือกใช้เครื่องมือที่ทันสมัยและเป็นมาตรฐานอุตสาหกรรม:
+
+-   **Core:** [Next.js](https://nextjs.org/) (App Router Architecture)
+-   **Language:** [TypeScript](https://www.typescriptlang.org/) (เพื่อความปลอดภัยและ Scalable)
+-   **Styling:** [Tailwind CSS](https://tailwindcss.com/) (ปรับแต่ง UI ได้รวดเร็ว)
+-   **Content:** MDX (Markdown + JSX)
+-   **Deployment:** Docker & Docker Compose Support
+
+## ✨ ฟีเจอร์หลัก (Features)
+
+-   ✅ **MDX Support:** เขียน Markdown ผสมกับ React Component ได้ทันที
+-   ✅ **Fast Refresh:** แก้ไขเนื้อหาและเห็นผลลัพธ์ทันที
+-   ✅ **Full Text Search:** ระบบค้นหาภายในเอกสาร (Planned)
+-   ✅ **Responsive Design:** รองรับทุกหน้าจอด้วย Tailwind
+-   ✅ **Docker Ready:** พร้อมรันใน Container ทันที
+
+## 🚀 การติดตั้งและใช้งาน (Getting Started)
+
+### 1. รันแบบ Local (Development)
 
 ```bash
+# ติดตั้ง dependencies
+npm install
+
+# รันเซิร์ฟเวอร์
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+เปิด browser ไปที่ http://localhost:3000
+2. รันด้วย Docker (Production/Self-hosted)
+โปรเจกต์นี้รองรับ Docker Compose สามารถรันร่วมกับ Service อื่นๆ ได้ง่าย:
+docker-compose up -d --build
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+📂 โครงสร้างโปรเจกต์ (Structure)
+.
+├── content/              # ไฟล์เอกสาร Markdown/MDX ทั้งหมดอยู่ที่นี่
+├── src/
+│   ├── app/              # Next.js App Router
+│   ├── components/       # React Components (UI, Layouts)
+│   └── lib/              # Utility functions
+├── public/               # Static assets
+└── docker-compose.yml    # Docker configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+🤝 การร่วมพัฒนา (Contributing)
+ยินดีต้อนรับทุกการสนับสนุน! ไม่ว่าจะเป็นการ:
+ * แก้คำผิดในเอกสาร
+ * เพิ่มฟีเจอร์ใหม่
+ * ปรับปรุง Design
+ * แนะนำไอเดียผ่าน Issues
+📄 License
+โปรเจกต์นี้เผยแพร่ภายใต้ลิขสิทธิ์ MIT License สามารถนำไปใช้ ปรับปรุง และแก้ไขได้ฟรี
 
-## Learn More
+***
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
