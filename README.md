@@ -53,7 +53,7 @@ npm run dev
 
 เปิด browser ไปที่ http://localhost:3000
 
-2. รันด้วย Docker (Production/Self-hosted)
+### 2. รันด้วย Docker (Production/Self-hosted)
 โปรเจกต์นี้รองรับ Docker Compose สามารถรันร่วมกับ Service อื่นๆ ได้ง่าย:
 ```
 docker-compose up -d --build
