@@ -59,6 +59,7 @@ npm run dev
 docker-compose up -d --build
 ```
 
+```
 📂 โครงสร้างโปรเจกต์ (Structure)
 .
 ├── content/              # ไฟล์เอกสาร Markdown/MDX ทั้งหมดอยู่ที่นี่
@@ -68,6 +69,7 @@ docker-compose up -d --build
 │   └── lib/              # Utility functions
 ├── public/               # Static assets
 └── docker-compose.yml    # Docker configuration
+```
 
 ### 🤝 การร่วมพัฒนา (Contributing)
 ยินดีต้อนรับทุกการสนับสนุน! ไม่ว่าจะเป็นการ:
@@ -75,7 +77,8 @@ docker-compose up -d --build
  * เพิ่มฟีเจอร์ใหม่
  * ปรับปรุง Design
  * แนะนำไอเดียผ่าน Issues
-📄 License
+
+### 📄 License
 โปรเจกต์นี้เผยแพร่ภายใต้ลิขสิทธิ์ MIT License สามารถนำไปใช้ ปรับปรุง และแก้ไขได้ฟรี
 
 ***
