@@ -1,26 +1,64 @@
+/* globals.css */
+
 @import "tailwindcss";
 
+/* ------------------------------------------------ */
+/* BASE STYLES AND VARIABLES (unchanged) */
+/* ------------------------------------------------ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+    --background: #ffffff;
+    --foreground: #171717;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+    /* Theme-compatible aliases */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    /* Font variables are usually set in layout.tsx */
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+    :root {
+        --background: #0a0a0a;
+        --foreground: #ededed;
+    }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* ------------------------------------------------ */
+/* 🎯 FIX: บังคับใช้ Shiki Styles (High Specificity) */
+/* ------------------------------------------------ */
+
+/* เลือก div ที่มี data attribute ที่ rehype-pretty-code สร้างขึ้น */
+div[data-rehype-pretty-code-fragment] {
+    overflow-x: auto;
+    border-radius: 0.5rem; /* rounded-lg */
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    
+    /* 🎯 สำคัญ: บังคับใช้สีพื้นหลังและสีข้อความของ Shiki */
+    background-color: var(--shiki-color-background) !important; 
+    color: var(--shiki-color-text) !important;
+}
+
+/* เลือก pre element ภายใน wrapper เพื่อควบคุมการแสดงผลโค้ด */
+div[data-rehype-pretty-code-fragment] > pre {
+    /* รีเซ็ตค่า padding/margin/background ที่ prose อาจเพิ่มเข้ามา */
+    padding: 1rem;
+    margin: 0; 
+    
+    /* บังคับไม่ให้มีพื้นหลังซ้ำซ้อน */
+    background-color: transparent !important; 
+    color: var(--shiki-color-text) !important;
+}
+
+/* สไตล์สำหรับเส้นที่ถูกไฮไลต์ */
+.highlighted {
+    width: 100%;
+    display: block;
+    background-color: var(--shiki-highlight-background);
 }

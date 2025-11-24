@@ -3,6 +3,8 @@ title: การเริ่มต้นใช้งาน (Getting Started)
 description: คู่มือเริ่มต้นสำหรับ Next.js, Tailwind CSS และ MDX
 author: DevG
 date: 2025-11-24
+order: 1
+category: เริ่มต้นใช้งาน
 ---
 
 {/* The `Alert` component is provided via the `components` mapping in `MdxRenderer` */}
@@ -35,3 +37,22 @@ date: 2025-11-24
 ### การเรียกใช้ Component (Correct Syntax)
 
 โปรดสังเกตว่าเราเรียกใช้ Component `Alert` ด้วย **JSX Tag** (`<Alert />`) ซึ่งเป็นวิธีที่ถูกต้องที่สุดในไฟล์ MDX ครับ.
+
+## 🧪 ทดสอบ Code Block
+
+นี่คือตัวอย่างโค้ด TypeScript ที่ใช้ใน Next.js:
+
+```typescript
+// Next.js Server Component Logic
+import { getMdxContent } from '@/lib/mdx'; 
+
+export async function getServerData(slug: string) {
+    const data = await getMdxContent(slug);
+    // ตรวจสอบการไฮไลต์ของ string และ keyword
+    if (!data) {
+        console.error("Content not found"); 
+        return null;
+    }
+    return data.content; // return string
+}
+```

@@ -94,6 +94,9 @@ npm install @tailwindcss/typography
 # Dynamic Route
 # ติดตั้ง Bundler และ Reader
 npm install mdx-bundler gray-matter
+
+# Syntax Highlighting
+npm install rehype-pretty-code @tailwindcss/typography shiki
 ```
 
 ### 📄 License

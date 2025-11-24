@@ -1,0 +1,21 @@
+---
+title: ฟีเจอร์หลักของระบบ
+description: คุณสมบัติหลักที่ควรรู้
+author: DevG
+date: 2025-11-25
+order: 2
+category: เริ่มต้นใช้งาน
+---
+# ทดสอบ Syntax Highlighting
+
+นี่คือตัวอย่างโค้ด TypeScript:
+
+```typescript
+// นี่คือโค้ดตัวอย่าง
+export async function fetchData(id: number): Promise<User> {
+    const res = await fetch(`/api/users/${id}`);
+    if (!res.ok) {
+        throw new Error('Fetch failed');
+    }
+    return res.json();
+}
