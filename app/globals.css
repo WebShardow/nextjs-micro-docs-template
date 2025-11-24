@@ -1,33 +1,6 @@
-/* globals.css (ปรับปรุงแล้ว) */
+/* globals.css (ฉบับแก้ไขปัญหา Padding และ Border-radius) */
 
-@import "tailwindcss";
-
-/* ------------------------------------------------ */
-/* BASE STYLES AND VARIABLES */
-/* ------------------------------------------------ */
-:root {
-    --background: #ffffff;
-    --foreground: #171717;
-
-    /* Theme-compatible aliases */
-    --color-background: var(--background);
-    --color-foreground: var(--foreground);
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
-    }
-}
-
-body {
-    background: var(--background);
-    color: var(--foreground);
-    /* มักจะกำหนด font ใน layout.tsx ด้วย className="font-sans" */
-    font-family: Arial, Helvetica, sans-serif; 
-}
-
+/* ... ส่วน BASE STYLES อื่นๆ ไม่ต้องแก้ไข ... */
 
 /* ------------------------------------------------ */
 /* 🎯 FIX: บังคับใช้ Shiki Styles (High Specificity) */
@@ -36,7 +9,9 @@ body {
 /* เลือก div ที่มี data attribute ที่ rehype-pretty-code สร้างขึ้น */
 div[data-rehype-pretty-code-fragment] {
     overflow-x: auto;
-    padding: 1rem;
+    
+    /* ✅ FIX 1: กำหนด Padding และ Border-radius ที่นี่ที่เดียว */
+    padding: 1rem; 
     border-radius: 0.5rem; /* rounded-lg */
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
@@ -48,10 +23,9 @@ div[data-rehype-pretty-code-fragment] {
 
 /* เลือก pre element ภายใน wrapper เพื่อควบคุมการแสดงผลโค้ด */
 div[data-rehype-pretty-code-fragment] > pre {
-    /* รีเซ็ตค่า margin ที่ prose อาจเพิ่มเข้ามา */
-    /* ไม่ต้องใส่ padding ที่นี่ เพราะใส่ที่ div ด้านนอกแล้ว */
-    padding: 0; 
-    margin: 0; 
+    /* ✅ FIX 2: รีเซ็ตค่า padding/margin/background ที่อาจถูกแทรกแซง */
+    padding: 0 !important; /* บังคับล้าง padding จากที่อื่น */
+    margin: 0 !important; /* บังคับล้าง margin จากที่อื่น */
 
     /* บังคับไม่ให้มีพื้นหลังซ้ำซ้อน */
     background-color: transparent !important; 
