@@ -37,8 +37,6 @@ div[data-rehype-pretty-code-fragment] {
     overflow-x: auto;
     
     /* ✅ FIX 1: กำหนด Padding และ Border-radius ที่นี่ที่เดียว */
-    padding: 1rem; 
-    border-radius: 0.5rem; /* rounded-lg */
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
 
@@ -50,9 +48,7 @@ div[data-rehype-pretty-code-fragment] {
 /* เลือก pre element ภายใน wrapper เพื่อควบคุมการแสดงผลโค้ด */
 div[data-rehype-pretty-code-fragment] > pre {
     /* ✅ FIX 2: รีเซ็ตค่า padding/margin/background ที่อาจถูกแทรกแซง */
-    padding: 0 !important; /* บังคับล้าง padding จากที่อื่น */
-    margin: 0 !important; /* บังคับล้าง margin จากที่อื่น */
-
+    
     /* บังคับไม่ให้มีพื้นหลังซ้ำซ้อน */
     background-color: transparent !important; 
     color: var(--shiki-color-text) !important;
