@@ -1,3 +1,12 @@
+# next.config.ts และ TSConfig
+
+## การกำหนดค่า Next.js
+
+เราต้องอัพเดทไฟล์ `next.config.ts` เพื่อบอกให้ Next.js ทราบว่าต้องประมวลผลไฟล์ `.mdx` หรือ `.md`
+
+ไฟล์ : `next.config.ts` เราจะใช้ฟังก์ชัน `withMDX` จาก `@next/mdx` ในการห่อหุ้ม `Configuration` เดิมครับ
+
+```TypeScript
 // next.config.ts
 import type { NextConfig } from "next";
 import withMDX from "@next/mdx";
@@ -23,3 +32,4 @@ const nextConfig: NextConfig = {
 
 // 3. Export Config ที่ห่อหุ้มด้วย MDX
 export default withMdx(nextConfig);
+```
