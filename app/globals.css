@@ -1,9 +1,9 @@
-/* globals.css */
+/* globals.css (ปรับปรุงแล้ว) */
 
 @import "tailwindcss";
 
 /* ------------------------------------------------ */
-/* BASE STYLES AND VARIABLES (unchanged) */
+/* BASE STYLES AND VARIABLES */
 /* ------------------------------------------------ */
 :root {
     --background: #ffffff;
@@ -12,7 +12,6 @@
     /* Theme-compatible aliases */
     --color-background: var(--background);
     --color-foreground: var(--foreground);
-    /* Font variables are usually set in layout.tsx */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -25,7 +24,8 @@
 body {
     background: var(--background);
     color: var(--foreground);
-    font-family: Arial, Helvetica, sans-serif;
+    /* มักจะกำหนด font ใน layout.tsx ด้วย className="font-sans" */
+    font-family: Arial, Helvetica, sans-serif; 
 }
 
 
@@ -40,7 +40,7 @@ div[data-rehype-pretty-code-fragment] {
     border-radius: 0.5rem; /* rounded-lg */
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
-    
+
     /* 🎯 สำคัญ: บังคับใช้สีพื้นหลังและสีข้อความของ Shiki */
     background-color: var(--shiki-color-background) !important; 
     color: var(--shiki-color-text) !important;
@@ -48,10 +48,11 @@ div[data-rehype-pretty-code-fragment] {
 
 /* เลือก pre element ภายใน wrapper เพื่อควบคุมการแสดงผลโค้ด */
 div[data-rehype-pretty-code-fragment] > pre {
-    /* รีเซ็ตค่า padding/margin/background ที่ prose อาจเพิ่มเข้ามา */
-    padding: 1rem;
+    /* รีเซ็ตค่า margin ที่ prose อาจเพิ่มเข้ามา */
+    /* ไม่ต้องใส่ padding ที่นี่ เพราะใส่ที่ div ด้านนอกแล้ว */
+    padding: 0; 
     margin: 0; 
-    
+
     /* บังคับไม่ให้มีพื้นหลังซ้ำซ้อน */
     background-color: transparent !important; 
     color: var(--shiki-color-text) !important;
