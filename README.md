@@ -90,6 +90,10 @@ npm install --save-dev @types/mdx
 
 # @tailwindcss/typography
 npm install @tailwindcss/typography
+
+# Dynamic Route
+# ติดตั้ง Bundler และ Reader
+npm install mdx-bundler gray-matter
 ```
 
 ### 📄 License
