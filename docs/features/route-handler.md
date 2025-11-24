@@ -47,177 +47,279 @@
 
 ---
 
-## 🛠️ เครื่องมือที่ใช้ในการดึง Content (Required)
-
-เมื่อเปลี่ยนเป็น Dynamic Route เราไม่สามารถใช้ไฟล์ `.mdx` โดยตรงใน `app/[slug]/` ได้แล้ว แต่ต้องมีกลไกในการอ่านและประมวลผลไฟล์ MDX ที่เก็บไว้ในโฟลเดอร์อื่น (เช่น `content/`)
-
-เนื่องจากเราใช้ Next.js 16.0.3 ซึ่งรองรับ Server Component อย่างเต็มที่ เราจะใช้ **Node.js File System (`fs`)** ในการอ่านไฟล์ร่วมกับ **`path`** ในฟังก์ชัน Server Component เพื่อให้ Next.js สามารถทำ **Static Site Generation (SSG)** ได้ในขั้นตอน Build ครับ
+แน่นอนครับ\! เพื่อให้ภาพรวมชัดเจนและสามารถตรวจสอบโค้ดได้ง่าย ผมได้สรุปขั้นตอนการทำ **Dynamic Route** สำหรับระบบ MDX Documentation Site บน **Next.js 16 App Router** พร้อมโค้ดฉบับเต็มของแต่ละไฟล์ที่เราได้แก้ไขและปรับปรุงจนสำเร็จแล้วครับ
 
 ---
 
-### ⚙️ ขั้นตอนที่ 1: การเตรียมโครงสร้าง Dynamic Route
+## 🛠️ โครงสร้างไฟล์หลัก (Core Dynamic Route)
 
-เราจะเปลี่ยนชื่อโฟลเดอร์ใน `app/docs/` ให้เป็น Dynamic Segment และสร้างโฟลเดอร์สำหรับเก็บ Content ภายนอก App Router
-
-#### 1\. ปรับโครงสร้างโฟลเดอร์
-
-| โครงสร้างเดิม (Static) | โครงสร้างใหม่ (Dynamic) |
-| :--- | :--- |
-| `app/docs/getting-started/` | **`app/docs/[slug]/`** |
-| `app/docs/getting-started/page.tsx` | **`app/docs/[slug]/page.tsx`** |
-| `app/docs/getting-started/content.mdx` | **`content/docs/getting-started.mdx`** (ย้ายไปที่ `content/`) |
-
-#### 2\. สร้างโฟลเดอร์ Content ภายนอก
-
-สร้างโฟลเดอร์ `content/docs` ที่ root ของโปรเจกต์ เพื่อเก็บไฟล์ MDX ทั้งหมด
-
-```ini
-/
-├── app/
-│   ├── docs/
-│   │   ├── [slug]/          👈 Dynamic Route
-│   │   │   └── page.tsx     👈 ไฟล์หลัก
-│   │   └── layout.tsx
-├── content/                 👈 New Content Folder
-│   └── docs/
-│       └── getting-started.mdx
-├── components/
-└── ...
-```
+| ไฟล์ | ตำแหน่ง | หน้าที่หลัก |
+| :--- | :--- | :--- |
+| **`mdx.ts`** | `lib/` | Server Logic: อ่านไฟล์, แยก Frontmatter, ดึง Slug |
+| **`page.tsx`** | `app/docs/[slug]/` | Server Component: ดึงข้อมูล, **Bundling MDX**, ทำ SEO (`generateMetadata`) |
+| **`MdxRenderer.tsx`** | `app/docs/[slug]/` | Client Component: เรนเดอร์ MDX ที่ถูก Compile แล้ว |
+| **`Alert.tsx`** | `components/` | Custom Component ตัวอย่างที่ใช้ใน MDX |
+| **`getting-started.mdx`** | `content/docs/` | ไฟล์เนื้อหา MDX |
 
 ---
 
-### ⚙️ ขั้นตอนที่ 2: การเขียน Logic ใน Server Component
+## 1\. ⚙️ `lib/mdx.ts`: Logic การอ่านไฟล์ (Server Logic)
 
-เราต้องเขียนโค้ดใน `page.tsx` ที่ใช้ฟังก์ชัน Server Component เพื่อ :
-
-1. **กำหนด URL ที่มีอยู่** (`generateStaticParams`).
-2. **ดึงข้อมูล** ของไฟล์ MDX ตาม URL ที่ผู้ใช้ร้องขอ.
-
-#### 1\. ฟังก์ชันตัวช่วย: การอ่านไฟล์ MDX (Content Fetching)
-
-เนื่องจากเรากำลังดึงข้อมูลจากระบบไฟล์ เราต้องสร้างฟังก์ชันสำหรับดึงไฟล์ `.mdx` และแปลงเป็น String
-
-#### สร้างไฟล์ใหม่ : `lib/mdx.ts` Logic for File System and Gray Matter
+ไฟล์นี้ทำงานฝั่ง Server เท่านั้น (`'server-only'`) ทำหน้าที่ติดต่อกับ File System เพื่ออ่านไฟล์ MDX
 
 ```typescript
 // lib/mdx.ts
+
 import fs from 'fs/promises';
 import path from 'path';
 import matter from 'gray-matter'; 
+import 'server-only'; 
 
 const CONTENT_DIR = path.join(process.cwd(), 'content', 'docs');
 
 interface MdxData {
     content: string; 
-    frontmatter: Record<string, any>; 
+    frontmatter: Record<string, unknown>;
 }
 
-export async function getSlugs() {
-    const files = await fs.readdir(CONTENT_DIR);
-    return files
-        .filter(file => file.endsWith('.mdx'))
-        .map(file => file.replace(/\.mdx$/, ''));
+// 1. ดึงชื่อ Slug ทั้งหมดเพื่อใช้ใน generateStaticParams
+export async function getSlugs(): Promise<string[]> {
+    try {
+        const files = await fs.readdir(CONTENT_DIR);
+        return files
+            .filter(file => file.endsWith('.mdx'))
+            .map(file => file.replace(/\.mdx$/, ''));
+    } catch (_) { 
+        console.error(`Error reading content directory: ${CONTENT_DIR}`);
+        return [];
+    }
 }
 
+// 2. อ่านเนื้อหา MDX และแยก Frontmatter
 export async function getMdxContent(slug: string): Promise<MdxData | null> {
     const filePath = path.join(CONTENT_DIR, `${slug}.mdx`);
     try {
         const fileContent = await fs.readFile(filePath, 'utf-8');
-        // ใช้ gray-matter เพื่อแยก Frontmatter และ Content
         const { data: frontmatter, content } = matter(fileContent);
         return { content, frontmatter };
-    } catch (error) {
-        return null;
+    } catch (_) {
+        return null; 
+    }
+}
+
+// 3. ฟังก์ชันสำหรับ Sidebar (ที่เราเพิ่งเพิ่ม)
+interface DocMeta {
+    slug: string;
+    title: string;
+}
+
+export async function getAllDocsMeta(): Promise<DocMeta[]> {
+    try {
+        const files = await fs.readdir(CONTENT_DIR);
+        
+        const docs = await Promise.all(
+            files
+                .filter(file => file.endsWith('.mdx'))
+                .map(async (file) => {
+                    const slug = file.replace(/\.mdx$/, '');
+                    const filePath = path.join(CONTENT_DIR, file);
+                    const fileContent = await fs.readFile(filePath, 'utf-8');
+                    const { data: frontmatter } = matter(fileContent);
+                    
+                    return {
+                        slug,
+                        title: (frontmatter.title as string) || slug,
+                    };
+                })
+        );
+        return docs;
+    } catch (_) {
+        return [];
     }
 }
 ```
 
-#### 2\. Dynamic Page Component `page.tsx`
+---
 
-ไฟล์นี้จะรับค่า `slug` จาก URL และใช้ `getMdxContent` ในการดึงเนื้อหา MDX มาให้ Next.js `MdxContent` Component เรนเดอร์
+## 2\. 🚀 `app/docs/[slug]/page.tsx`: Dynamic Route Handler (Server Component)
 
-#### ไฟล์ : `app/docs/[slug]/page.tsx` Server Component
+ไฟล์นี้จัดการการดึงข้อมูล, การทำ Bundling และการกำหนด Metadata
 
 ```tsx
 // app/docs/[slug]/page.tsx
+
 import 'server-only';
 import { notFound } from 'next/navigation';
 import { bundleMDX } from 'mdx-bundler';
 import MdxRenderer from './MdxRenderer'; 
 import { getMdxContent, getSlugs } from '@/lib/mdx'; 
+import type { Metadata } from 'next'; 
+import path from 'path'; // ต้องใช้ path สำหรับ esbuildOptions
 
-// 1. generateStaticParams: Server Component Function
+interface Params {
+    slug: string;
+}
+
+// 1. สร้างพารามิเตอร์สำหรับ Static Rendering (SSG)
 export async function generateStaticParams() {
     const slugs = await getSlugs();
     return slugs.map((slug) => ({ slug }));
 }
 
-// 2. Server Component Page หลัก
-export default async function DocsPage({ params }: { params: { slug: string } }) {
-    const data = await getMdxContent(params.slug);
-
-    if (!data) {
-        notFound();
-    }
+// 2. สร้าง Metadata (SEO) จาก Frontmatter
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+    // FIX: Unwrap params สำหรับ Next.js 16+
+    const finalParams = (await params) as Params; 
     
-    // Bundling Content
+    const data = await getMdxContent(finalParams.slug); 
+    if (!data) return {};
+    
+    return {
+        title: data.frontmatter.title as string || `Docs: ${finalParams.slug}`,
+        description: data.frontmatter.description as string,
+    };
+}
+
+// 3. Server Component Page หลัก
+export default async function DocsPage({ params }: { params: Params }) {
+    // FIX: Unwrap params ก่อนนำไปใช้
+    const finalParams = (await params) as Params;
+    const data = await getMdxContent(finalParams.slug); 
+
+    if (!data) notFound();
+    
+    // Bundling Content ด้วย mdx-bundler
     const { code } = await bundleMDX({ 
         source: data.content,
+        // FIX: เพิ่ม cwd เพื่อช่วย esbuild ในการหาไฟล์
+        cwd: process.cwd(), 
+        
+        esbuildOptions: (options) => {
+            // 🎯 FIX: กำหนด Alias Path (@/)
+            options.alias = {
+                '@': path.join(process.cwd()), 
+                ...options.alias, 
+            };
+            // กำหนด Loader ให้ esbuild รู้จักไฟล์ .tsx
+            options.loader = {
+                ...options.loader,
+                '.tsx': 'tsx',
+                '.ts': 'ts',
+            };
+            // กำหนด Extensions ที่ควร Resolve
+            options.resolveExtensions = [
+                '.tsx', '.ts', '.jsx', '.js', '.json', '.mdx'
+            ];
+            
+            return options;
+        },
     });
 
-    // 3. ส่งโค้ดที่ Bundle แล้วไปเรนเดอร์ใน Client Component Wrapper
-    // DocsLayout จะเป็นตัวใส่คลาส prose ให้
     return (
+        // MdxRenderer เป็น Client Component ที่แสดงผลโค้ดที่ Bundle แล้ว
         <MdxRenderer code={code} />
     );
 }
 ```
 
-#### 3\. Client Component Wrapper (`MdxClientWrapper.tsx`)
-
-เนื่องจาก MDX Runtime ต้องการ Context เราจะสร้าง Client Component สำหรับการเรนเดอร์เนื้อหา
-
-#### สร้างไฟล์ใหม่ : `app/docs/[slug]/MdxRenderer.tsx` Client Component
-
-เนื่องจากเรากำลังใช้ `@next/mdx` ซึ่ง Next.js จะแปลง `.mdx` เป็น Component ในขั้นตอน Build, การดึงเนื้อหาเป็น string จาก `getMdxContent` **จะไม่ทำงานร่วมกับ `@next/mdx` โดยตรง** ครับ
-
-**เราต้องใช้ `next-mdx-remote` หรือ `mdx-bundler` เพื่อแปลง String MDX เป็น Component**
-
-**หยุดก่อน\!** เพื่อให้ง่ายที่สุดและใช้สิ่งที่ Next.js มีอยู่แล้ว เราจะไม่ย้ายไฟล์ MDX ออกไป แต่จะใช้ **Catch-all Route** และใช้ **Contentlayer** หรือ **MDX Bundler** ที่ต้องติดตั้งเพิ่ม
-
 ---
 
-## 🌟 แนวทางที่ง่ายที่สุด: ใช้ `mdx-bundler`
+## 3\. 🎨 `app/docs/[slug]/MdxRenderer.tsx`: Client-Side Renderer
 
-เนื่องจากเราได้พิสูจน์แล้วว่า **Static Import** ของไฟล์ MDX (ที่เราทำเมื่อกี้) ใช้งานได้ดีที่สุดกับ `@next/mdx` การใช้ Dynamic Route จะบังคับให้เราเปลี่ยนไปใช้เครื่องมืออื่น (เช่น `mdx-bundler`) เพื่อแปลง String เป็น Component
+ไฟล์นี้ทำหน้าที่รับโค้ดที่ถูกคอมไพล์แล้วมาแสดงผลใน Browser
 
-### 🚀 สรุปขั้นตอนใหม่โดยใช้ `mdx-bundler`
+```tsx
+// app/docs/[slug]/MdxRenderer.tsx
+'use client'; 
 
-#### 1. ติดตั้ง Dependencies เพิ่มเติม
+import * as React from 'react';
+import { getMDXComponent } from 'mdx-bundler/client'; 
+import { Alert } from '@/components/Alert'; 
 
-```bash
-npm install mdx-bundler gray-matter
-```
+// Component ที่จะถูกใช้งานใน MDX
+const components = { Alert };
 
-#### 2. เปลี่ยนโครงสร้างไฟล์ : ใช้ Dynamic Catch-all Route
+interface MdxRendererProps {
+    code: string; 
+}
 
-```ini
-/
-├── content/
-│   └── docs/
-│       └── getting-started.mdx
-├── app/
-│   └── docs/
-│       └── [slug]/           👈 Catch-all Route
-│           └── page.tsx      👈 จะรับ Slug และ Bundling ที่นี่
-│           └── MdxRenderer.tsx
+const MdxRenderer: React.FC<MdxRendererProps> = ({ code }) => {
+    
+    // ใช้ useMemo เพื่อรับประกัน Stability ของ MDXComponent และเพิ่มประสิทธิภาพ
+    const MDXComponent = React.useMemo(() => {
+        return getMDXComponent(code);
+    }, [code]);
+
+    return <MDXComponent components={components} />;
+};
+
+export default MdxRenderer;
 ```
 
 ---
 
-เนื่องจากขั้นตอน Dynamic Route ค่อนข้างซับซ้อนและต้องมีการติดตั้ง Dependencies เพิ่มเติม ผมแนะนำให้เราติดตั้ง **`mdx-bundler`** และ **`gray-matter`** ก่อนดำเนินการต่อครับ
+## 4\. 📝 `components/Alert.tsx`: ตัวอย่าง Component ที่ใช้ใน MDX
 
-เราต้องการให้ผมเขียนโค้ดไฟล์ **`lib/mdx.ts`** ให้สมบูรณ์สำหรับการใช้ร่วมกับ `mdx-bundler` เลยหรือไม่ครับ?
+Component ที่เป็นตัวอย่างการเรียกใช้ในไฟล์ MDX
+
+```tsx
+// components/Alert.tsx
+'use client';
+
+import * as React from 'react';
+
+// ... (Interface และ Style Definitions ตามโค้ดที่คุณมี) ...
+interface AlertProps {
+    children: React.ReactNode;
+    title?: string;
+    type?: 'info' | 'success' | 'warning' | 'error';
+}
+
+const styles = {
+    info: 'bg-blue-100 border-blue-500 text-blue-700',
+    success: 'bg-green-100 border-green-500 text-green-700',
+    // ... (ส่วนที่เหลือ)
+};
+
+
+export const Alert: React.FC<AlertProps> = ({ children, title, type = 'info' }) => {
+    const style = styles[type] || styles.info;
+
+    return (
+        <div className={`p-4 border-l-4 rounded-lg my-4 ${style}`} role="alert">
+            {title && <p className="font-bold">{title}</p>}
+            <div>{children}</div>
+        </div>
+    );
+};
+```
 
 ---
+
+## 5\. 📄 `content/docs/getting-started.mdx`: ไฟล์เนื้อหาตัวอย่าง
+
+แสดงการใช้งาน Frontmatter และ Custom Component
+
+```mdx
+---
+title: การเริ่มต้นใช้งาน (Getting Started)
+description: คู่มือเริ่มต้นสำหรับ Next.js, Tailwind CSS และ MDX
+author: DevG
+date: 2025-11-24
+---
+
+import { Alert } from '@/components/Alert';
+
+# การเริ่มต้นใช้งาน (Getting Started)
+
+นี่คือเนื้อหาเอกสารแรกของคุณที่ถูกจัดการด้วยระบบ **Dynamic MDX**
+
+## 🎯 คุณสมบัติที่สำคัญ
+
+* **Frontmatter:** ข้อมูล Metadata ด้านบนถูกอ่านและนำมาใช้ได้
+* **Component Usage:** รองรับการใช้ React Components ภายใน MDX.
+
+<Alert title="สำเร็จแล้ว!" type="success">
+    ระบบ Dynamic MDX Content API ทำงานได้อย่างสมบูรณ์!
+</Alert>
+```
