@@ -7,19 +7,59 @@ import MdxRenderer from './MdxRenderer';
 import { getMdxContent, getSlugs } from '@/lib/mdx'; 
 import type { Metadata } from 'next'; 
 import path from 'path'; 
-import rehypePrettyCode from 'rehype-pretty-code'; // 🎯 ต้องมี Import นี้!
+
+// 1. นำเข้า Rehype/Remark Plugins
+import rehypePrettyCode from 'rehype-pretty-code';
+import rehypeSlug from 'rehype-slug'; 
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'; 
+
+// 2. นำเข้า Utility สำหรับการดึง TOC
+import { visit } from 'unist-util-visit'; 
+import { Root } from 'mdast'; 
+
+/**
+ * Interface สำหรับข้อมูล TOC แต่ละรายการ
+ */
+export interface TocItem {
+    id: string;
+    text: string;
+    level: 1 | 2 | 3 | 4 | 5 | 6; 
+}
 
 interface Params {
     slug: string;
 }
 
-// 1. generateStaticParams (unchanged)
+// Function หลักสำหรับดึง TOC
+function extractToc(data: { toc: TocItem[] }) {
+    // ปลั๊กอิน Rehype/Remark จะส่งฟังก์ชันมาให้
+    return () => (tree: Root) => { 
+        // วนลูปหา Heading nodes
+        visit(tree, 'heading', (node) => {
+            const level = node.depth as TocItem['level']; 
+            
+            // ดึง ID ที่ถูกสร้างโดย rehype-slug
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const id = (node.data as any)?.hProperties?.id || ''; 
+            
+            // ดึงข้อความจาก Heading
+            const textNode = node.children.find(n => n.type === 'text');
+            const text = textNode ? textNode.value : '';
+
+            if (id && text) {
+                data.toc.push({ id, text, level });
+            }
+        });
+    };
+}
+
+// 1. generateStaticParams
 export async function generateStaticParams() {
     const slugs = await getSlugs();
     return slugs.map((slug) => ({ slug }));
 }
 
-// 2. generateMetadata (unchanged)
+// 2. generateMetadata
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
     const finalParams = (await params) as Params; 
     const data = await getMdxContent(finalParams.slug); 
@@ -36,50 +76,58 @@ export default async function DocsPage({ params }: { params: Params }) {
     const finalParams = (await params) as Params;
     const data = await getMdxContent(finalParams.slug); 
 
-    if (!data) {
-        notFound();
-    }
+    if (!data) notFound();
     
-    // Bundling Content
+    // Object สำหรับเก็บข้อมูล TOC ที่ดึงได้ระหว่าง Bundling
+    const tocData: { toc: TocItem[] } = { toc: [] }; 
+
+    // Bundling Content ด้วย mdx-bundler
     const { code } = await bundleMDX({ 
         source: data.content,
         cwd: process.cwd(), 
         
-        // 🎯 FIX: เพิ่ม mdxOptions เพื่อใช้ rehypePlugins
         mdxOptions: (options) => {
             options.rehypePlugins = [
-                // Preserve existing plugins (if any)
                 ...(options.rehypePlugins ?? []), 
+                
+                // 1. สร้าง ID ให้ Heading
+                rehypeSlug, 
+                // 2. สร้าง Autolink ให้ Heading (ใช้ ID ที่สร้างจาก rehypeSlug)
+                [
+                    rehypeAutolinkHeadings, 
+                    { properties: { className: ['heading-link'], ariaLabel: 'Permalink' } }
+                ],
+                
+                // 3. Syntax Highlighting
                 [
                     rehypePrettyCode, 
                     {
-                        // Use a named Shiki theme that outputs inline/background styles
-                        // so we don't depend on external CSS variables being present.
-                        theme: 'github-dark',
-                        // Keep the background so pre blocks receive a background color
-                        keepBackground: true,
-
+                        theme: 'github-dark', 
+                        keepBackground: true, 
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         onVisitLine(node: any) { 
-                            if (!node.children || node.children.length === 0) {
+                            if (node.children.length === 0) {
                                 node.children = [{ type: 'text', value: ' ' }];
                             }
+                            node.properties = node.properties || {}; 
                         },
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         onVisitHighlightedLine(node: any) { 
-                            if (!node.properties) node.properties = {};
-                            if (!node.properties.className) node.properties.className = [];
+                            node.properties = node.properties || {}; 
+                            node.properties.className = node.properties.className || [];
                             node.properties.className.push('highlighted');
                         },
                     },
                 ],
+                
+                // 4. ดึง TOC (ต้องทำหลัง Rehype Slug)
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                extractToc(tocData) as any,
             ];
-
-            // Return the full options object (mdxOptions expects the options)
+            
             return options;
         },
         
-        // กำหนด esbuildOptions (unchanged)
         esbuildOptions: (options) => {
             options.alias = {
                 '@': path.join(process.cwd()), 
@@ -99,7 +147,7 @@ export default async function DocsPage({ params }: { params: Params }) {
     });
 
     return (
-        // *NOTE: div class="prose dark:prose-invert max-w-none" ถูกย้ายไปที่ layout.tsx แล้ว (ตามโค้ดก่อนหน้า)
-        <MdxRenderer code={code} />
+        // ส่ง Code และ TOC ไปยัง Client Component
+        <MdxRenderer code={code} toc={tocData.toc} />
     );
 }
