@@ -29,7 +29,6 @@
 - **Language:** [TypeScript](https://www.typescriptlang.org/) (เพื่อความปลอดภัยและ Scalable)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/) (ปรับแต่ง UI ได้รวดเร็ว)
 - **Content:** MDX (Markdown + JSX)
-- **Deployment:** Docker & Docker Compose Support
 
 ## ✨ ฟีเจอร์หลัก (Features)
 
@@ -97,6 +96,9 @@ npm install mdx-bundler gray-matter
 
 # Syntax Highlighting
 npm install rehype-pretty-code @tailwindcss/typography shiki
+
+npm install remark-gfm
+npm install rehype-slug rehype-autolink-headings
 ```
 
 ### 📄 License

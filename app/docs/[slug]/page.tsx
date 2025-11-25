@@ -8,10 +8,11 @@ import { getMdxContent, getSlugs } from '@/lib/mdx';
 import type { Metadata } from 'next'; 
 import path from 'path'; 
 
-// 1. นำเข้า Rehype/Remark Plugins
+// 1. นำเข้า Rehype/Remark Plugins (ต้องติดตั้งแล้ว)
 import rehypePrettyCode from 'rehype-pretty-code';
-import rehypeSlug from 'rehype-slug'; 
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'; 
+import rehypeSlug from 'rehype-slug'; // <--- ต้องติดตั้ง
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'; // <--- ต้องติดตั้ง
+import remarkGfm from 'remark-gfm'; // <--- สำหรับ Tables (ต้องติดตั้ง)
 
 // 2. นำเข้า Utility สำหรับการดึง TOC
 import { visit } from 'unist-util-visit'; 
@@ -78,7 +79,6 @@ export default async function DocsPage({ params }: { params: Params }) {
 
     if (!data) notFound();
     
-    // Object สำหรับเก็บข้อมูล TOC ที่ดึงได้ระหว่าง Bundling
     const tocData: { toc: TocItem[] } = { toc: [] }; 
 
     // Bundling Content ด้วย mdx-bundler
@@ -87,6 +87,14 @@ export default async function DocsPage({ params }: { params: Params }) {
         cwd: process.cwd(), 
         
         mdxOptions: (options) => {
+            
+            // 🎯 REMARK PLUGINS (สำหรับการประมวลผล Markdown -> MDX AST)
+            options.remarkPlugins = [
+                ...(options.remarkPlugins ?? []),
+                remarkGfm, // <-- FIX: สำหรับ Tables
+            ];
+
+            // 🎯 REHYPE PLUGINS (สำหรับการประมวลผล MDX AST -> HTML AST)
             options.rehypePlugins = [
                 ...(options.rehypePlugins ?? []), 
                 

@@ -4,55 +4,75 @@ description: คู่มือเริ่มต้นสำหรับ Next.j
 author: DevG
 date: 2025-11-24
 order: 1
-category: เริ่มต้นใช้งาน
+category: Starter
 ---
 
 {/* The `Alert` component is provided via the `components` mapping in `MdxRenderer` */}
 
 # การเริ่มต้นใช้งาน (Getting Started)
 
-นี่คือเนื้อหาเอกสารแรกของคุณที่ถูกจัดการด้วยระบบ **Dynamic MDX**
-ที่รันบน **Next.js App Router** และใช้ `mdx-bundler` สำหรับการประมวลผล.
-
-## 🎯 คุณสมบัติที่สำคัญ
-
-* **Frontmatter:** ข้อมูล Metadata ด้านบนถูกอ่านและนำมาใช้ได้ (เช่น Title, Author) ในการทำ SEO (generateMetadata).
-* **Dynamic Routing:** สามารถสร้างเอกสารเพิ่มโดยไม่ต้องแก้ไข Code.
-* **Component Usage:** รองรับการใช้ React Components ภายใน MDX.
-
 <Alert title="สำเร็จแล้ว!" type="success">
     ระบบ Dynamic MDX Content API ทำงานได้อย่างสมบูรณ์!
 </Alert>
 
-## 🚀 สรุปขั้นตอนที่เราทำ
+นี่คือเนื้อหาเอกสารแรกของคุณที่ถูกจัดการด้วยระบบ **Dynamic MDX**
+ที่รันบน **Next.js App Router** และใช้ `mdx-bundler` สำหรับการประมวลผล.
 
-1.  **ติดตั้ง:** ติดตั้ง `mdx-bundler` และ `gray-matter`.
-2.  **Logic (lib/mdx.ts):** สร้าง Server Logic เพื่ออ่าน Slug, ดึง Content และ Bundling.
-3.  **Dynamic Route (app/docs/[slug]/page.tsx):** ใช้ `generateStaticParams` และเรียก `bundleMDX` เพื่อสร้างหน้าแบบ Static/Dynamic.
-4.  **Renderer (MdxRenderer.tsx):** สร้าง Client Component เพื่อเรนเดอร์โค้ด MDX ที่ถูก Bundle โดยใช้ `getMDXComponent`.
-5.  **Configuration:** แก้ไข ESLint เพื่อให้รองรับ `catch (_)` ใน TypeScript.
+## 📚 Next.js Docs Starter (The Modern MkDocs Alternative)
 
-> **คำแนะนำ:** Component ต่างๆ ที่ใช้ใน MDX (เช่น `<Alert>`) ควรอยู่ในรูปแบบของ Client Component หรือเป็น Server Component ที่ใช้ `use client` Wrapper เพื่อหลีกเลี่ยงข้อผิดพลาดเรื่อง Runtime Environment.
+> **"เพราะ Documentation ที่ดี คือจุดเริ่มต้นของ Software ที่ยั่งยืน"**
 
-### การเรียกใช้ Component (Correct Syntax)
+## 🛠 Tech Stack
 
-โปรดสังเกตว่าเราเรียกใช้ Component `Alert` ด้วย **JSX Tag** (`<Alert />`) ซึ่งเป็นวิธีที่ถูกต้องที่สุดในไฟล์ MDX ครับ.
+เราเลือกใช้เครื่องมือที่ทันสมัยและเป็นมาตรฐานอุตสาหกรรม:
 
-## 🧪 ทดสอบ Code Block
+- **Core:** [Next.js](https://nextjs.org/) (App Router Architecture)
+- **Language:** [TypeScript](https://www.typescriptlang.org/) (เพื่อความปลอดภัยและ Scalable)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/) (ปรับแต่ง UI ได้รวดเร็ว)
+- **Content:** MDX (Markdown + JSX)
 
-นี่คือตัวอย่างโค้ด TypeScript ที่ใช้ใน Next.js:
+## Reference
 
-```typescript
-// Next.js Server Component Logic
-import { getMdxContent } from '@/lib/mdx'; 
+NEXTJS-NICRO-DOCS-TEMPLATE V.0.4.0 (N16TW4T5) อ้างอิง Version
 
-export async function getServerData(slug: string) {
-    const data = await getMdxContent(slug);
-    // ตรวจสอบการไฮไลต์ของ string และ keyword
-    if (!data) {
-        console.error("Content not found"); 
-        return null;
+```json
+{
+    "name": "nextjs",
+    "version": "0.4.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "eslint"
+    },
+    "dependencies": {
+        "@mdx-js/loader": "^3.1.1",
+        "@mdx-js/react": "^3.1.1",
+        "@next/mdx": "^16.0.3",
+        "@tailwindcss/typography": "^0.5.19",
+        "gray-matter": "^4.0.3",
+        "mdx-bundler": "^10.1.1",
+        "next": "16.0.3",
+        "react": "19.2.0",
+        "react-dom": "19.2.0",
+        "rehype-autolink-headings": "^7.1.0",
+        "rehype-pretty-code": "^0.14.1",
+        "rehype-slug": "^6.0.0",
+        "remark-gfm": "^4.0.1",
+        "shiki": "^3.15.0"
+    },
+    "devDependencies": {
+        "@tailwindcss/postcss": "^4",
+        "@types/estree": "^1.0.8",
+        "@types/mdx": "^2.0.13",
+        "@types/node": "^20",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "eslint": "^9",
+        "eslint-config-next": "16.0.3",
+        "tailwindcss": "^4",
+        "typescript": "^5"
     }
-    return data.content; // return string
 }
 ```
