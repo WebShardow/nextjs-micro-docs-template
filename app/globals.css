@@ -1,9 +1,9 @@
-/* globals.css (ปรับปรุงแล้ว) */
+/* globals.css */
 
-@import "tailwindcss";
+@import "tailwindcss"; /* */
 
 /* ------------------------------------------------ */
-/* BASE STYLES AND VARIABLES */
+/* BASE STYLES AND VARIABLES (คงไว้) */
 /* ------------------------------------------------ */
 :root {
     --background: #ffffff;
@@ -24,37 +24,39 @@
 body {
     background: var(--background);
     color: var(--foreground);
-    /* มักจะกำหนด font ใน layout.tsx ด้วย className="font-sans" */
-    font-family: Arial, Helvetica, sans-serif; 
+    font-family: Arial, Helvetica, sans-serif;
 }
+
 
 /* ------------------------------------------------ */
-/* 🎯 FIX: บังคับใช้ Shiki Styles (High Specificity) */
+/* 🎯 SHIKI/REHYPE-PRETTY-CODE THEME VARIABLES (คงไว้) */
 /* ------------------------------------------------ */
 
-/* เลือก div ที่มี data attribute ที่ rehype-pretty-code สร้างขึ้น */
-div[data-rehype-pretty-code-fragment] {
-    overflow-x: auto;
-    
-    /* ✅ FIX 1: กำหนด Padding และ Border-radius ที่นี่ที่เดียว */
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
-
-    /* 🎯 สำคัญ: บังคับใช้สีพื้นหลังและสีข้อความของ Shiki */
-    background-color: var(--shiki-color-background) !important; 
-    color: var(--shiki-color-text) !important;
+/* Light Theme (Default) */
+:root {
+    --shiki-color-background: #f8f8f8; /* */
+    --shiki-color-text: #333333; /* */
+    --shiki-highlight-background: #eeeeee; /* */
+    /* ... (Shiki Token Variables อื่นๆ) ... */
 }
 
-/* เลือก pre element ภายใน wrapper เพื่อควบคุมการแสดงผลโค้ด */
-div[data-rehype-pretty-code-fragment] > pre {
-    /* ✅ FIX 2: รีเซ็ตค่า padding/margin/background ที่อาจถูกแทรกแซง */
-    
-    /* บังคับไม่ให้มีพื้นหลังซ้ำซ้อน */
-    background-color: transparent !important; 
-    color: var(--shiki-color-text) !important;
+/* Dark Theme */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --shiki-color-background: #1e1e1e; 
+        --shiki-color-text: #cccccc; 
+        --shiki-highlight-background: #333333;
+        /* ... (Shiki Token Variables อื่นๆ) ... */
+    }
 }
 
-/* สไตล์สำหรับเส้นที่ถูกไฮไลต์ */
+
+/* ------------------------------------------------ */
+/* 🎯 เหลือไว้แค่สไตล์สำหรับ Highlighted Line */
+/* ------------------------------------------------ */
+
+/* ลบโค้ดที่เคยใช้ div[data-rehype-pretty-code-fragment] ออกทั้งหมด */
+
 .highlighted {
     width: 100%;
     display: block;

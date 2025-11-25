@@ -1,35 +1,28 @@
-// tailwind.config.ts
-
 import type { Config } from 'tailwindcss';
-import typography from '@tailwindcss/typography';
+import typography from '@tailwindcss/typography'; // ต้อง import typography!
 
 const config: Config = {
     content: [
-        // ... (paths เดิม)
+        './app/**/*.{js,ts,jsx,tsx,mdx}',
+        './components/**/*.{js,ts,jsx,tsx,mdx}',
+        './content/**/*.{js,ts,jsx,tsx,mdx}',
     ],
     darkMode: 'class',
     theme: {
         extend: {
-            // 🎯 NEW: Override Typography Styling สำหรับ Code Block
+            // 🎯 NEW FIX: Override Typography Styling สำหรับ Code Block
             typography: {
-                // กำหนดให้ 'DEFAULT' theme (หรือ 'lg', 'xl' ตามที่คุณใช้)
                 DEFAULT: {
                     css: {
-                        // บังคับให้พื้นหลังของ <pre> ใช้ตัวแปร CSS ของ Shiki
-                        'pre': {
-                            // ใช้ตัวแปรสีพื้นหลังและสีข้อความที่เรากำหนดใน globals.css
-                            'backgroundColor': 'var(--shiki-color-background)', 
-                            'color': 'var(--shiki-color-text)', 
-                            
-                            // ปิด border radius/padding ของ prose default
-                            'borderRadius': '0.5rem', 
-                            'padding': '1rem',
+                        // สำหรับ Inline Code (เพื่อให้มีพื้นหลังด้วย)
+                        'code': {
+                            // ต้องเป็น !important เช่นกัน
+                            'backgroundColor': 'var(--shiki-color-background) !important',
+                            'padding': '0.2rem 0.4rem !important',
+                            'borderRadius': '0.3rem !important',
+                            'color': 'var(--shiki-color-text) !important',
+                            'fontFamily': `'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace !important`,
                         },
-                        // อาจจำเป็นต้องปิดสี background ที่ prose กำหนดให้ code inline
-                        // 'code': {
-                        //     'backgroundColor': 'transparent',
-                        //     'color': 'var(--shiki-color-text)',
-                        // },
                     },
                 },
             },

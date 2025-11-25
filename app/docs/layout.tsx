@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 // 🎯 FIX: นำเข้า DocMeta Interface ด้วย
-import { getAllDocsMeta, DocMeta } from '@/lib/mdx'; 
+import { getAllDocsMeta, DocMeta } from '@/lib/mdx';
 
 // 🎯 FIX: กำหนด Type ให้กับ Utility Function
 interface GroupedDoc {
@@ -19,11 +19,11 @@ const groupByCategory = (docs: DocMeta[]): GroupedDoc[] => { // กำหนด 
         acc[category].push(doc);
         return acc;
     }, {});
-    
+
     // เรียงลำดับกลุ่มตามชื่อ Category
     return Object.keys(groups).sort().map(key => ({
         category: key,
-        docs: groups[key] 
+        docs: groups[key]
     }));
 };
 
@@ -33,11 +33,11 @@ export default async function DocsLayout({
     children: React.ReactNode;
 }) {
     const docs = await getAllDocsMeta();
-    const groupedDocs = groupByCategory(docs); 
+    const groupedDocs = groupByCategory(docs);
 
     return (
         <div className="flex flex-col md:flex-row min-h-screen max-w-7xl mx-auto">
-            
+
             {/* Sidebar Section */}
             {/* 🎯 FIX: เปลี่ยน flex-shrink-0 เป็น shrink-0 (ตามคำแนะนำของ Tailwind) */}
             <aside className="w-full md:w-64 shrink-0 p-6 border-r border-gray-200 dark:border-gray-800">
@@ -50,9 +50,9 @@ export default async function DocsLayout({
                             </h4>
                             <ul className="space-y-1">
                                 {/* FIX: Type doc ถูกกำหนดแล้วโดย GroupedDoc[] */}
-                                {group.docs.map((doc: DocMeta) => ( 
+                                {group.docs.map((doc: DocMeta) => (
                                     <li key={doc.slug}>
-                                        <Link 
+                                        <Link
                                             href={`/docs/${doc.slug}`}
                                             className="block px-2 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md dark:text-gray-400 dark:hover:text-blue-400 dark:hover:bg-gray-900 transition-colors"
                                         >
